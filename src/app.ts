@@ -1,33 +1,26 @@
-import express, { Application, Request, Response } from 'express';
+import express, { Application } from 'express';
+import UserRouter from './routes/users/userRouter';
 
 class App {
     public express: Application;
 
     constructor() {
         this.express = express();
-        this.middleware();
-        this.routes();
+        this.Middleware();
+        this.Routes();
     }
 
-    private middleware(): void {
+    private Middleware() {
         this.express.use(express.json());
         this.express.use(express.urlencoded({ extended: true }));
     }
 
-    private routes(): void {
-        this.express.get('/', (req: Request, res: Response) => {
-            res.send('Hello World!'); 
-        });
-
-        this.express.get('/users', (req: Request, res: Response) => {
-            res.json([
-                { id: 1, name: 'John Doe' },
-                { id: 2, name: 'Jane Doe' }
-            ])
-        });
+    private Routes() {
+        this.express.get('/', (_, res) => { res.status(200).send('Hello World!') });
+        this.express.use('/users', UserRouter);
     }
 
-    public start(port: number): void {
+    public Start(port: number) {
         this.express.listen(port, () => {
             console.log(`Server is running on port ${port}`);
         });
