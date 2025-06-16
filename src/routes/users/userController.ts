@@ -51,8 +51,6 @@ class UserController {
         try {
             const { userId } = req.body;
 
-            console.log('User ID:', userId);
-
             if (!userId) {
                 return res.status(400).json({ message: 'ID é obrigatório' });
             }
