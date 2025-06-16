@@ -12,6 +12,18 @@ class UserController {
                 return res.status(400).json({ message: 'Nome, email e senha são obrigatórios' });
             }
 
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                return res.status(400).json({ message: 'Formato de email inválido' });
+            }
+
+            const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+            if (!passwordRegex.test(password)) {
+                return res.status(400).json({ message: 'Senha muito fraca' });
+            }
+
+            console.log('Creating user:', { name, email, password });
+
             const user = await UserService.CreateUser(name, email, password);
 
             if (!user) {
@@ -21,7 +33,6 @@ class UserController {
             const { password: _, ...userWithoutPassword } = user;
             return res.status(201).json(userWithoutPassword);
         } catch (error) {
-            console.error('Create user error:', error);
             return res.status(500).json({ message: 'Erro interno do servidor' });
         }
     }

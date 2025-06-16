@@ -17,7 +17,7 @@ class UserRouter {
         this.router.use(Middleware.SafeRoute());
         this.router.get('/', (req: Request, res: Response) => { UserController.ReadId(req, res) });
         this.router.put('/', (req: Request, res: Response) => { UserController.Update(req, res) });
-        this.router.delete('/del', (req: Request, res: Response) => { UserController.Delete(req, res) });
+        this.router.delete('/', (req: Request, res: Response) => { UserController.Delete(req, res) });
         return this.router;
     }
 }

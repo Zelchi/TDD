@@ -1,4 +1,4 @@
 {
-    "watch": ["src", "test"],
-    "ignore": ["dist", "node_modules"]
+    "watch": ["src"],
+    "ignore": ["dist", "node_modules", "test"]
 }

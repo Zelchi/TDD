@@ -34,6 +34,11 @@ class UserService {
 
     public async CreateUser(name: string, email: string, password: string): Promise<UserEntity | null> {
         try {
+            
+            if (await UserRepository.findByEmail(email)) {
+                return null;
+            }
+            
             const hashedPassword = await Password.Hash(password);
 
             const newUser = new UserEntity(name, email, hashedPassword);
