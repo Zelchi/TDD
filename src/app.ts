@@ -1,5 +1,6 @@
 import express, { Application } from 'express';
 import UserRouter from './routes/users/userRouter';
+import Database from './utils/database';
 
 class App {
     public express: Application;
@@ -20,12 +21,18 @@ class App {
         this.express.use('/users', UserRouter);
     }
 
-    public Start(port: number) {
-        this.express.listen(port, () => {
-            console.log(`Server is running on port ${port}`);
-        });
+    public async Start(port: number) {
+        try {
+            await Database.Initialize();
+            this.express.listen(port, () => {
+                console.log(`Server is running on port ${port}`);
+            });
+        } catch (error) {
+            console.error("Failed to start server:", error);
+            process.exit(1);
+        }
     }
 }
 
-export default new App().express;
 export const Server = new App();
+export default Server.express;

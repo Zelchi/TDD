@@ -7,7 +7,7 @@ interface UserCredentials {
 
 export class Token {
 
-    static Generate(user: UserCredentials): string {
+    public Generate(user: UserCredentials): string {
         try {
             return jwt.sign(
                 { id: user.id, email: user.email },
@@ -19,11 +19,11 @@ export class Token {
         }
     }
 
-    static async Verify(token: string): Promise<UserCredentials> {
+    public async Verify(token: string): Promise<UserCredentials> {
         try {
-            return (
-                jwt.verify(token, process.env.JWT_SECRET || 'default') as UserCredentials
-            );
+            const batata = jwt.verify(token, process.env.JWT_SECRET || 'default') as UserCredentials
+            console.log('batata', batata);
+            return batata;
         } catch (error) {
             throw new Error('Invalid token');
         }
@@ -31,4 +31,4 @@ export class Token {
 
 }
 
-export default Token;
+export default new Token();

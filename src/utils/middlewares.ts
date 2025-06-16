@@ -3,13 +3,10 @@ import Token from './token';
 
 class Middleware {
 
-    public static FreeRoute(): RequestHandler {
+    public FreeRoute(): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             try {
                 const { authorization } = req.headers || {};
-                const { userId } = req.body || {};
-
-                if (userId) throw new Error();
 
                 if (authorization) {
                     const token = authorization.split(' ')[1];
@@ -22,18 +19,16 @@ class Middleware {
                 next();
                 return;
             } catch (error) {
-                res.status(401).json({ error: 'Invalid token' });
+                res.status(401).json({ error: 'Invalid tokenbbbbbbb' });
             }
         }
     }
 
-    public static SafeRoute(): RequestHandler {
+    public SafeRoute(): RequestHandler {
         return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
             try {
                 const { authorization } = req.headers || {};
-                const { userId } = req.body || {};
 
-                if (userId) throw new Error();
                 if (!authorization) throw new Error();
 
                 const token = authorization.split(' ')[1];
@@ -49,11 +44,11 @@ class Middleware {
                 }
 
             } catch (error) {
-                res.status(401).json({ error: 'Invalid token' });
+                res.status(401).json({ error: 'Invalid tokenaaaaaa' });
             }
         };
     }
 
 }
 
-export default Middleware;
+export default new Middleware();
