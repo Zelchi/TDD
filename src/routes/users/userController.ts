@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { UserEntity } from './userEntity';
 import UserService from './userService';
 
 class UserController {
@@ -50,6 +51,8 @@ class UserController {
         try {
             const { userId } = req.body;
 
+            console.log('User ID:', userId);
+
             if (!userId) {
                 return res.status(400).json({ message: 'ID é obrigatório' });
             }
@@ -70,15 +73,18 @@ class UserController {
 
     public async Update(req: Request, res: Response) {
         try {
-            const userData = req.body;
+            const { userId, name, email, password } = req.body;
 
-            if (!userData.id) {
-                return res.status(400).json({ message: 'ID é obrigatório' });
-            }
-
-            if (!userData || Object.keys(userData).length === 0) {
+            if (!userId && !name && !email && !password) {
                 return res.status(400).json({ message: 'Dados do usuário são obrigatórios' });
             }
+
+            const userData: Partial<UserEntity> = {
+                id: userId,
+                name,
+                email,
+                password
+            };
 
             const updatedUser = await UserService.UpdateUser(userData);
 

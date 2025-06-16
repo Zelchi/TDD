@@ -15,8 +15,8 @@ class UserRouter {
         this.router.post('/reg', (req: Request, res: Response) => { UserController.Create(req, res) });
         this.router.post('/log', (req: Request, res: Response) => { UserController.Login(req, res) });
         this.router.use(Middleware.SafeRoute());
-        this.router.get('/:id', (req: Request, res: Response) => { UserController.ReadId(req, res) });
-        this.router.put('/:id', (req: Request, res: Response) => { UserController.Update(req, res) });
+        this.router.get('/', (req: Request, res: Response) => { UserController.ReadId(req, res) });
+        this.router.put('/', (req: Request, res: Response) => { UserController.Update(req, res) });
         this.router.delete('/del', (req: Request, res: Response) => { UserController.Delete(req, res) });
         return this.router;
     }

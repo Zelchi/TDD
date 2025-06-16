@@ -20,9 +20,9 @@ export class Database {
     public async Initialize(): Promise<void> {
         try {
             await this.dataSource.initialize();
-            console.log("Database connection established successfully.");
+            console.log("Data Source iniciou com sucesso!");
         } catch (error) {
-            console.error("Error during Data Source initialization:", error);
+            console.error("Erro durante a inicialização do Data base:", error);
         }
     }
 }

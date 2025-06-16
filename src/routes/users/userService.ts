@@ -27,7 +27,7 @@ class UserService {
 
             return { token };
         } catch (error) {
-            console.error('Error during login:', error);
+            console.error('Erro durante o login:', error);
             return null;
         }
     }
@@ -39,7 +39,7 @@ class UserService {
             const newUser = new UserEntity(name, email, hashedPassword);
             return await UserRepository.create(newUser);
         } catch (error) {
-            console.error('Error creating user:', error);
+            console.error('Erro ao criar usuário:', error);
             return null;
         }
     }
@@ -52,7 +52,7 @@ class UserService {
 
             return await UserRepository.update(userData.id!, userData);
         } catch (error) {
-            console.error('Error updating user:', error);
+            console.error('Erro ao atualizar usuário:', error);
             return null;
         }
     }
@@ -70,7 +70,7 @@ class UserService {
             await UserRepository.delete(user.id);
             return true;
         } catch (error) {
-            console.error('Error deleting user:', error);
+            console.error('Erro ao deletar usuário:', error);
             return false;
         }
     }

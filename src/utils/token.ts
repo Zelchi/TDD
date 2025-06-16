@@ -15,17 +15,15 @@ export class Token {
                 { expiresIn: '24h' }
             );
         } catch (error) {
-            throw new Error('Error generating token');
+            throw new Error('Erro ao gerar o token');
         }
     }
 
-    public async Verify(token: string): Promise<UserCredentials> {
+    public Verify(token: string): UserCredentials {
         try {
-            const batata = jwt.verify(token, process.env.JWT_SECRET || 'default') as UserCredentials
-            console.log('batata', batata);
-            return batata;
+            return jwt.verify(token, process.env.JWT_SECRET || 'default') as UserCredentials
         } catch (error) {
-            throw new Error('Invalid token');
+            throw new Error('Token inválido ou expirado');
         }
     }
 
