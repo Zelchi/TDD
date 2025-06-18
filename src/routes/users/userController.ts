@@ -84,7 +84,11 @@ class UserController {
         try {
             const { userId, name, email, password } = req.body;
 
-            if (!userId && !name && !email && !password) {
+            if (!userId) {
+                return res.status(400).json({ message: 'ID é obrigatório' });
+            }
+
+            if (!name && !email && !password) {
                 return res.status(400).json({ message: 'Dados do usuário são obrigatórios' });
             }
 
@@ -96,7 +100,6 @@ class UserController {
             };
 
             const updatedUser = await UserService.UpdateUser(userData);
-
             if (!updatedUser) {
                 return res.status(404).json({ message: 'Usuário não encontrado' });
             }
@@ -104,7 +107,6 @@ class UserController {
             const { password: _, ...userWithoutPassword } = updatedUser;
             return res.status(200).json(userWithoutPassword);
         } catch (error) {
-            console.error('Update user error:', error);
             return res.status(500).json({ message: 'Erro interno do servidor' });
         }
     }

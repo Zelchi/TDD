@@ -23,7 +23,7 @@ export class Token {
         try {
             return jwt.verify(token, process.env.JWT_SECRET || 'default') as UserCredentials
         } catch (error) {
-            throw new Error('Token inválido ou expirado');
+            return { id: '', email: '' };
         }
     }
 
