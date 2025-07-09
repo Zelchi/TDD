@@ -48,28 +48,6 @@ class Cache {
         this.cache.delete(key);
         return temp;
     }
-
-    public ExpressCache(req: any, res: any, next: any): void {
-
-        this.checkMemory();
-
-        const key = req.originalUrl || req.url;
-        const method = req.method;
-        const origin = req.headers.origin || req.headers.host;
-        const cacheKey = `${method}:${origin}:${key}`;
-        if (this.cache.has(cacheKey)) {
-            res.send(this.cache.get(cacheKey));
-        } else {
-            res.sendResponse = res.send;
-            res.send = (body: any) => {
-                this.set(cacheKey, body);
-                res.sendResponse(body);
-            };
-            return;
-        }
-        next();
-
-    }
 }
 
 export default new Cache();
