@@ -1,26 +1,24 @@
 import { Request, Response, NextFunction } from 'express';
-import os from 'os';
 import { v4 as uuid } from 'uuid';
-
-type CacheEntry = {
-    value: object;
-    expiresAt: number;
-};
+import os from 'os';
 
 class Cache {
 
-    private cache: Map<string, CacheEntry>;
-    private TTL: number = 1000 * 60 * 10;
+    private CACHE: Map<string, {value: object, expiresAt: number}>;
+    private MAX_MEMORY: number;
+    private TTL: number;
 
     constructor() {
-        this.cache = new Map();
+        this.CACHE = new Map();
+        this.MAX_MEMORY = os.totalmem() * 0.5;
+        this.TTL = 1000 * 60 * 10;
     }
 
     private get(key: string): object | undefined {
-        const entry = this.cache.get(key);
+        const entry = this.CACHE.get(key);
         if (!entry) return undefined;
         if (Date.now() > entry.expiresAt) {
-            this.cache.delete(key);
+            this.CACHE.delete(key);
             return undefined;
         }
         return entry.value;
@@ -28,40 +26,22 @@ class Cache {
 
     private set = (key: string, value: object): void => {
         const expiresAt = Date.now() + this.TTL;
-        this.cache.set(key, { value, expiresAt });
+        this.CACHE.set(key, { value, expiresAt });
     };
-
-    private put = (key: string, value: object): void => {
-        const actualEntry = this.cache.get(key);
-        const expiresAt = Date.now() + this.TTL;
-        if (actualEntry) {
-            this.cache.set(key, { value: { ...actualEntry.value, ...value }, expiresAt });
-        } else {
-            this.cache.set(key, { value, expiresAt });
-        }
-    }
-
-    private del(key: string): object | undefined {
-        const entry = this.cache.get(key);
-        this.cache.delete(key);
-        return entry?.value;
-    }
 
     private checkMemory() {
         const now = Date.now();
-        for (const [key, entry] of this.cache.entries()) {
+        for (const [key, entry] of this.CACHE.entries()) {
             if (entry.expiresAt < now) {
-                this.cache.delete(key);
+                this.CACHE.delete(key);
             }
         }
 
-        const total = os.totalmem();
-        const free = os.freemem();
-        const used = total - free;
+        const used = process.memoryUsage().heapUsed;
+        const limit = this.MAX_MEMORY;
 
-        const usedPercent = (used / total) * 100;
-        if (usedPercent >= 90) {
-            this.cache.delete(this.cache.keys().next().value as string);
+        if (used >= limit) {
+            this.CACHE.delete(this.CACHE.keys().next().value as string);
             this.checkMemory();
         }
         return;
@@ -141,6 +121,5 @@ class Cache {
 }
 
 const cache = new Cache();
-export default cache;
-export const ExpressCache = cache.ExpressCache.bind(cache);
 export const ExpressSession = cache.ExpressSession.bind(cache);
+export const ExpressCache = cache.ExpressCache.bind(cache);
