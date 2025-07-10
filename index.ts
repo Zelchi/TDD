@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import {Server} from './src/App';
 import dotenv from 'dotenv';
 dotenv.config();

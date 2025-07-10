@@ -4,7 +4,7 @@ import os from 'os';
 
 class Cache {
 
-    private CACHE: Map<string, {value: object, expiresAt: number}>;
+    private CACHE: Map<string, { value: object, expiresAt: number }>;
     private MAX_MEMORY: number;
     private TTL: number;
 
@@ -30,6 +30,7 @@ class Cache {
     };
 
     private checkMemory() {
+        console.log(`[${(this.MAX_MEMORY / 1024 / 1024).toFixed(0)}MB] - [${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(0)}MB] - [${this.CACHE.size}]`);
         const now = Date.now();
         for (const [key, entry] of this.CACHE.entries()) {
             if (entry.expiresAt < now) {
@@ -73,7 +74,7 @@ class Cache {
 
         const cachedResponse = this.get(key) as {
             statusCode?: number,
-            headers?: Record<string, string>,
+            headers?: Map<string, string>,
             body?: unknown
         };
 
@@ -98,10 +99,10 @@ class Cache {
             return originalStatus.call(this, code);
         } as any;
 
-        const headers: Record<string, string> = {};
+        const headers: Map<string, string> = new Map();
         const originalSetHeader = res.setHeader;
         res.setHeader = function (this: Response, key: string, value: any) {
-            headers[key] = value as string;
+            headers.set(key, value as string);
             return originalSetHeader.call(this, key, value);
         } as any;
 
