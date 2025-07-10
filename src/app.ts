@@ -1,7 +1,7 @@
 import express, { Application } from 'express';
 import UserRouter from './routes/users/userRouter';
-import Database from './utils/database';
-import Cache from './utils/cache';
+import Database from './utils/Database';
+import { ExpressCache, ExpressSession } from './utils/Cache';
 
 class App {
     public express: Application;
@@ -15,6 +15,8 @@ class App {
     private Middleware() {
         this.express.use(express.json());
         this.express.use(express.urlencoded({ extended: true }));
+        this.express.use(ExpressSession);
+        this.express.use(ExpressCache);
     }
 
     private Routes() {

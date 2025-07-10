@@ -1,7 +1,7 @@
 import UserRepository from './userRepository';
 import { UserEntity } from './userEntity';
-import Token from '../../utils/token';
-import Password from '../../utils/password';
+import Token from '../../utils/Token';
+import Password from '../../utils/Password';
 
 class UserService {
 

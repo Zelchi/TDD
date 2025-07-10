@@ -1,5 +1,5 @@
 import { Router, Request, Response } from 'express';
-import Middleware from '../../utils/middlewares';
+import Middleware from '../../utils/Middlewares';
 import UserController from './userController';
 
 class UserRouter {

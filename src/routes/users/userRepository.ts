@@ -1,6 +1,6 @@
 import { UserEntity } from "./userEntity";
 import { Repository } from "typeorm";
-import Database from "../../utils/database";
+import Database from "../../utils/Database";
 
 class UserRepository {
 

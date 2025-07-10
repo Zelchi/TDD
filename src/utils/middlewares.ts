@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction, RequestHandler } from 'express';
-import Token from './token';
+import Token from './Token';
 
 class Middleware {
 
