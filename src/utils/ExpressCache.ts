@@ -74,34 +74,28 @@ class ExpressCache {
             return;
         }
 
-        this.checkMemory();
-
-        const originalStatus = res.status.bind(res);
         const originalSetHeader = res.setHeader.bind(res);
         const originalJson = res.json.bind(res);
 
-        let statusCode = 100;
-
         const headers: Map<string, string> = new Map();
 
-        res.status = (code: number) => {
-            statusCode = code;
+        let statusCode = 200;
 
-            return originalStatus(code);
-        };
+        if (res.statusCode === 200) {
 
-        res.setHeader = (key: string, value: string) => {
-            headers.set(key, value);
+            res.setHeader = (key: string, value: string) => {
+                headers.set(key, value);
 
-            return originalSetHeader(key, value);
-        };
+                return originalSetHeader(key, value);
+            };
 
-        res.json = (body: string): Response => {
-            this.set(key, { statusCode, headers, body });
+            res.json = (body: string): Response => {
+                this.set(key, { statusCode, headers, body });
 
-            return originalJson(body);
-        };
+                return originalJson(body);
+            };
 
+        }
 
         this.checkMemory();
         return next();
