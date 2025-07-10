@@ -8,9 +8,13 @@ class Cache {
     private MAX_MEMORY: number;
     private TTL: number;
 
+    private REQUEST_IP: Map<string, { count: number, lastRequest: number }> = new Map();
+    private RATE_LIMIT = 100;
+    private RATE_WINDOW = 60 * 1000;
+
     constructor() {
         this.CACHE = new Map();
-        this.MAX_MEMORY = os.totalmem() * 0.5;
+        this.MAX_MEMORY = 1024 * 1024 * 1024 * 10;
         this.TTL = 1000 * 60 * 10;
     }
 
@@ -49,7 +53,20 @@ class Cache {
     }
 
     public ExpressSession(req: Request, res: Response, next: NextFunction): void {
-        this.checkMemory();
+        const ip = req.ip ?? '';
+        const now = Date.now();
+        const entry = this.REQUEST_IP.get(ip);
+
+        if (entry && now - entry.lastRequest < this.RATE_WINDOW) {
+            entry.count++;
+            entry.lastRequest = now;
+            if (entry.count > this.RATE_LIMIT) {
+                res.status(429).json({ error: 'Too many requests' });
+                return;
+            }
+        } else {
+            this.REQUEST_IP.set(ip, { count: 1, lastRequest: now });
+        }
 
         let sessionId = req.headers['session-id'];
 
@@ -62,6 +79,7 @@ class Cache {
     }
 
     public ExpressCache(req: Request, res: Response, next: NextFunction): void {
+        this.checkMemory();
 
         const url = req.originalUrl || req.url;
         const method = req.method.toLowerCase();
@@ -93,6 +111,7 @@ class Cache {
         }
 
         const originalStatus = res.status;
+
         let statusCode = 200;
         res.status = function (this: Response, code: number) {
             statusCode = code;
@@ -107,6 +126,7 @@ class Cache {
         } as any;
 
         const originalJson = res.json.bind(res);
+
         res.json = (body: any): Response => {
             console.log(`Cache miss for ${key}`);
             this.set(key, {
