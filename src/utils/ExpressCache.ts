@@ -12,27 +12,32 @@ class ExpressCache {
         this.TTL = 1000 * 60 * 10;
     }
 
-    private get(key: string): object | undefined {
+    private Get = (key: string): object | undefined => {
         const entry = this.CACHE.get(key);
         if (!entry) return undefined;
         if (Date.now() > entry.expiresAt) {
-            this.CACHE.delete(key);
+            this.Del(key);
             return undefined;
         }
         return entry.value;
     }
 
-    private set = (key: string, value: object): void => {
+    private Set = (key: string, value: object): void => {
         const expiresAt = Date.now() + this.TTL;
         this.CACHE.set(key, { value, expiresAt });
     };
 
-    private checkMemory() {
+    private Del = (key: string): void => {
+        this.CACHE.delete(key);
+    }
+
+    private CheckMemorySpace() {
         console.log(`[${(this.MAX_MEMORY / 1024 / 1024).toFixed(0)}MB] - [${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(0)}MB] - [${this.CACHE.size}]`);
+
         const now = Date.now();
         for (const [key, entry] of this.CACHE.entries()) {
             if (entry.expiresAt < now) {
-                this.CACHE.delete(key);
+                this.Del(key);
             }
         }
 
@@ -40,8 +45,8 @@ class ExpressCache {
         const limit = this.MAX_MEMORY;
 
         if (used >= limit) {
-            this.CACHE.delete(this.CACHE.keys().next().value as string);
-            this.checkMemory();
+            this.Del(this.CACHE.keys().next().value as string);
+            this.CheckMemorySpace();
         }
         return;
     }
@@ -52,14 +57,20 @@ class ExpressCache {
             return next();
         }
 
-        const userId = req.headers['user-id'] || "anonymous";
+        const userId = req.headers['authorization'] || "anonymous";
         const key = `${req.method}:${req.originalUrl}:${userId}`;
 
-        const cachedResponse = this.get(key) as {
+        const cachedResponse = this.Get(key) as {
             statusCode?: number,
             headers?: Map<string, string>,
             body?: unknown
         };
+
+        if (cachedResponse) {
+            console.log(`Cache hit for ${key}`);
+        } else {
+            console.log(`Cache miss for ${key}`);
+        }
 
         if (cachedResponse) {
             if (cachedResponse.statusCode) {
@@ -76,28 +87,30 @@ class ExpressCache {
 
         const originalSetHeader = res.setHeader.bind(res);
         const originalJson = res.json.bind(res);
+        const originalStatus = res.status.bind(res);
 
         const headers: Map<string, string> = new Map();
 
-        let statusCode = 200;
+        let statusCode = res.statusCode;
 
-        if (res.statusCode === 200) {
+        res.status = (code: number): Response => {
+            statusCode = code;
+            return originalStatus(code);
+        };
 
-            res.setHeader = (key: string, value: string) => {
-                headers.set(key, value);
+        res.setHeader = (key: string, value: string) => {
+            headers.set(key, value);
+            return originalSetHeader(key, value);
+        };
 
-                return originalSetHeader(key, value);
-            };
+        res.json = (body: string): Response => {
+            if (statusCode === 200) {
+                this.Set(key, { statusCode, headers, body });
+            }
+            return originalJson(body);
+        };
 
-            res.json = (body: string): Response => {
-                this.set(key, { statusCode, headers, body });
-
-                return originalJson(body);
-            };
-
-        }
-
-        this.checkMemory();
+        this.CheckMemorySpace();
         return next();
     }
 }

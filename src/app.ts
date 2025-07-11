@@ -2,7 +2,7 @@ import express, { Application } from 'express';
 import UserRouter from './routes/users/userRouter';
 import Database from './utils/Database';
 import ExpressCache from './utils/ExpressCache';
-import ExpressIPBan from './utils/IpBan';
+import ExpressIPBan from './utils/IPBan';
 
 class App {
     public express: Application;

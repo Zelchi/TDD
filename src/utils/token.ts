@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 interface UserCredentials {
     id: string;
     email: string;
+    role?: string;
 }
 
 export class Token {
